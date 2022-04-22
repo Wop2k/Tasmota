@@ -528,7 +528,7 @@
 //  #define USE_ADS1115                            // [I2cDriver13] Enable ADS1115 16 bit A/D converter (I2C address 0x48, 0x49, 0x4A or 0x4B) based on Adafruit ADS1x15 library (no library needed) (+0k7 code)
 //  #define USE_INA219                             // [I2cDriver14] Enable INA219 (I2C address 0x40, 0x41 0x44 or 0x45) Low voltage and current sensor (+1k code)
 //  #define USE_INA226                             // [I2cDriver35] Enable INA226 (I2C address 0x40, 0x41 0x44 or 0x45) Low voltage and current sensor (+2k3 code)
-//  #define USE_SHT3X                              // [I2cDriver15] Enable SHT3x (I2C address 0x44 or 0x45) or SHTC3 (I2C address 0x70) sensor (+0k7 code)
+    #define USE_SHT3X                              // [I2cDriver15] Enable SHT3x (I2C address 0x44 or 0x45) or SHTC3 (I2C address 0x70) sensor (+0k7 code)
 //  #define USE_TSL2561                            // [I2cDriver16] Enable TSL2561 sensor (I2C address 0x29, 0x39 or 0x49) using library Joba_Tsl2561 (+2k3 code)
 //  #define USE_TSL2591                            // [I2cDriver40] Enable TSL2591 sensor (I2C address 0x29) using library Adafruit_TSL2591 (+1k6 code)
 //  #define USE_MGS                                // [I2cDriver17] Enable Xadow and Grove Mutichannel Gas sensor using library Multichannel_Gas_Sensor (+10k code)
@@ -813,7 +813,7 @@
 // -- Thermostat control ----------------------------
 //#define USE_THERMOSTAT                           // Add support for Thermostat
   #define THERMOSTAT_CONTROLLER_OUTPUTS         1         // Number of outputs to be controlled independently
-  #define THERMOSTAT_SENSOR_NAME                "DS18B20" // Name of the local sensor to be used
+  #define THERMOSTAT_SENSOR_NAME                "SHT3X"   // Name of the local sensor to be used
   #define THERMOSTAT_SENSOR_NUMBER              1         // Number of local sensors to be used
   #define THERMOSTAT_RELAY_NUMBER               1         // Default output relay number for the first controller (+i for following ones)
   #define THERMOSTAT_SWITCH_NUMBER              1         // Default input switch number for the first controller (+i for following ones)
