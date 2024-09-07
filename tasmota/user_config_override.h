@@ -27,6 +27,14 @@
 //  #define USE_MQTT_TLS_FORCE_EC_CIPHER           // Force Elliptic Curve cipher (higher security) required by some servers (automatically enabled with USE_MQTT_AWS_IOT) (+11.4k code, +0.4k mem)
 #endif
 
+#ifndef USE_SCRIPT
+#define USE_SCRIPT  // adds about 17k flash size, variable ram size
+#endif
+#ifdef USE_RULES
+#undef USE_RULES
+#endif  
+
+
 // force the compiler to show a warning to confirm that this file is included
 #warning **** user_config_override.h: Using Settings from this File ****
 

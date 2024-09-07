@@ -502,7 +502,7 @@
     #define SUNRISE_DAWN_ANGLE DAWN_NORMAL       // Select desired Dawn Angle from (DAWN_NORMAL, DAWN_CIVIL, DAWN_NAUTIC, DAWN_ASTRONOMIC)
 
 // -- Ping ----------------------------------------
-//  #define USE_PING                                 // Enable Ping command (+2k code)
+  #define USE_PING                                 // Enable Ping command (+2k code)
 
 // -- Compression ---------------------------------
 #define USE_UNISHOX_COMPRESSION                  // Add support for string compression in Rules or Scripts
