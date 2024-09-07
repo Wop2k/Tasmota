@@ -29,13 +29,12 @@
 
 #define D_CMND_RFSEND "Send"
 #define D_CMND_RFPROTOCOL "Protocol"
-#define D_CMND_RFTIMEOUT "TimeOut"
 
 #define D_JSON_RF_PULSE "Pulse"
 #define D_JSON_RF_REPEAT "Repeat"
 #define D_JSON_NONE_ENABLED "None Enabled"
 
-const char kRfCommands[] PROGMEM = "Rf|"  // No prefix
+const char kRfCommands[] PROGMEM = D_CMND_PREFIX_RF "|"  // Prefix
   D_CMND_RFSEND "|" D_CMND_RFPROTOCOL "|" D_CMND_RFTIMEOUT;
 
 void (* const RfCommands[])(void) PROGMEM = {
@@ -180,7 +179,7 @@ void CmndRfSend(void)
       for (char *str = strtok_r(XdrvMailbox.data, ", ", &p); str && i < 5; str = strtok_r(nullptr, ", ", &p)) {
         switch (i++) {
         case 0:
-          data = strtoul(str, nullptr, 0);  // Allow decimal (5246996) and hexadecimal (0x501014) input
+          data = strtoull(str, nullptr, 0);  // Allow decimal (5246996) and hexadecimal (0x501014) input
           break;
         case 1:
           bits = atoi(str);
@@ -229,7 +228,7 @@ void CmndRfTimeOut(void) {
  * Interface
 \*********************************************************************************************/
 
-bool Xdrv17(uint8_t function)
+bool Xdrv17(uint32_t function)
 {
   bool result = false;
 
@@ -245,6 +244,9 @@ bool Xdrv17(uint8_t function)
         break;
       case FUNC_INIT:
         RfInit();
+        break;
+      case FUNC_ACTIVE:
+        result = true;
         break;
     }
   }

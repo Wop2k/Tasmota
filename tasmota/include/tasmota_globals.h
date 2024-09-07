@@ -45,6 +45,7 @@ extern "C" void custom_crash_callback(struct rst_info * rst_info, uint32_t stack
 extern "C" void resetPins();
 extern "C" int startWaveformClockCycles(uint8_t pin, uint32_t highCcys, uint32_t lowCcys,
   uint32_t runTimeCcys, int8_t alignPhase, uint32_t phaseOffsetCcys, bool autoPwm);
+extern "C" void setTimer1Callback(uint32_t (*fn)());
 #ifdef USE_SERIAL_BRIDGE
 void SerialBridgePrintf(PGM_P formatP, ...);
 #endif
@@ -53,13 +54,13 @@ void InfluxDbProcess(bool use_copy = false);
 #endif
 
 #ifdef ESP32
-#if CONFIG_IDF_TARGET_ESP32       // ESP32/PICO-D4
+//#if CONFIG_IDF_TARGET_ESP32       // ESP32/PICO-D4
 #ifdef USE_ETHERNET
 IPAddress EthernetLocalIP(void);
 char* EthernetHostname(void);
 String EthernetMacAddress(void);
 #endif  // USE_ETHERNET
-#endif  // CONFIG_IDF_TARGET_ESP32
+//#endif  // CONFIG_IDF_TARGET_ESP32
 #endif  // ESP32
 
 /*********************************************************************************************\
@@ -67,6 +68,31 @@ String EthernetMacAddress(void);
 \*********************************************************************************************/
 
 #include "include/tasmota_configurations.h"            // Preconfigured configurations
+
+/*********************************************************************************************\
+ * Finale overrides
+\*********************************************************************************************/
+
+const char WIFI_HOSTNAME[] = WIFI_DEFAULT_HOSTNAME;    // Override by user_config_override.h
+
+/*-------------------------------------------------------------------------------------------*\
+ * ESP8266 and ESP32 build time definitions
+\*-------------------------------------------------------------------------------------------*/
+
+// created in pio-tools/pre_source_dir.py
+#if defined(CONFIG_TASMOTA_FLASHMODE_OPI)
+  #define D_TASMOTA_FLASHMODE "OPI"
+#elif (CONFIG_TASMOTA_FLASHMODE_QIO)
+  #define D_TASMOTA_FLASHMODE "QIO"
+#elif defined(CONFIG_TASMOTA_FLASHMODE_QOUT)
+  #define D_TASMOTA_FLASHMODE "QOUT"
+#elif defined(CONFIG_TASMOTA_FLASHMODE_DIO)
+  #define D_TASMOTA_FLASHMODE "DIO"
+#elif defined(CONFIG_TASMOTA_FLASHMODE_DOUT)
+  #define D_TASMOTA_FLASHMODE "DOUT"
+#else
+#error "Please add missing flashmode definition in the lines above!" // could be upcoming octal modes
+#endif // value check of CONFIG_TASMOTA_FLASHMODE
 
 /*********************************************************************************************\
  * ESP8266 specific parameters
@@ -107,31 +133,27 @@ String EthernetMacAddress(void);
 
 #if CONFIG_IDF_TARGET_ESP32
 
-#ifdef CORE32SOLO1
-#ifdef USE_ETHERNET
-#undef USE_ETHERNET                                // ESP32-Solo1 does not support ethernet
-#endif
-#endif  // CORE32SOLO1
 
 #else   // Disable features not present in other ESP32 like ESP32C3, ESP32S2, ESP32S3 etc.
-#ifdef USE_ETHERNET
-#undef USE_ETHERNET                                // All non-ESP32 do not support ethernet
-#endif
+//#ifdef USE_ETHERNET
+//#undef USE_ETHERNET                                // All non-ESP32 do not support ethernet
+//#endif
 #endif  // CONFIG_IDF_TARGET_ESP32
 
 /*-------------------------------------------------------------------------------------------*\
  * End ESP32 specific parameters
 \*-------------------------------------------------------------------------------------------*/
+
 /*-------------------------------------------------------------------------------------------*\
- * Start ESP32-C32 specific parameters - disable features not present in ESP32-C3
+ * Start ESP32-C3/C6 specific parameters - disable features not present in ESP32-C3/C6
 \*-------------------------------------------------------------------------------------------*/
 
-#if CONFIG_IDF_TARGET_ESP32C3                      // ESP32-C3
+#if CONFIG_IDF_TARGET_ESP32C3 || CONFIG_IDF_TARGET_ESP32C6  // ESP32-C3/C6
 //#ifdef USE_ETHERNET
-//#undef USE_ETHERNET                                // ESP32-C3 does not support ethernet
+//#undef USE_ETHERNET                                // ESP32-C3/C6 does not support ethernet
 //#endif
 
-#endif  // CONFIG_IDF_TARGET_ESP32C3
+#endif  // CONFIG_IDF_TARGET_ESP32C3/C6
 
 /*-------------------------------------------------------------------------------------------*\
  * End ESP32-C3 specific parameters
@@ -263,7 +285,8 @@ String EthernetMacAddress(void);
 #define TASM_FILE_DRIVER            "/.drvset%03d"
 #define TASM_FILE_SENSOR            "/.snsset%03d"
 #define TASM_FILE_TLSKEY            "/tlskey"          // TLS private key
-#define TASM_FILE_ZIGBEE            "/zb"              // Zigbee devices information blob
+#define TASM_FILE_ZIGBEE_LEGACY_V2  "/zb"              // Zigbee devices information blob, legacy v2
+#define TASM_FILE_ZIGBEE            "/zbv4"            // Zigbee devices information blob, now v4
 #define TASM_FILE_ZIGBEE_DATA       "/zbdata"          // Zigbee last known values of devices
 #define TASM_FILE_AUTOEXEC          "/autoexec.bat"    // Commands executed after restart
 #define TASM_FILE_CONFIG            "/config.sys"      // Settings executed after restart
@@ -288,11 +311,17 @@ String EthernetMacAddress(void);
 #ifndef MQTT_CLEAN_SESSION
 #define MQTT_CLEAN_SESSION          1          // 0 = No clean session, 1 = Clean session (default)
 #endif
+#ifndef MQTT_DISABLE_SSERIALRECEIVED
+#define MQTT_DISABLE_SSERIALRECEIVED 0         // 1 = Disable sserialreceived mqtt messages, 0 = Enable sserialreceived mqtt messages (default)
+#endif
 #ifndef MQTT_LWT_OFFLINE
 #define MQTT_LWT_OFFLINE            "Offline"  // MQTT LWT offline topic message
 #endif
 #ifndef MQTT_LWT_ONLINE
 #define MQTT_LWT_ONLINE             "Online"   // MQTT LWT online topic message
+#endif
+#ifndef MQTT_DISABLE_MODBUSRECEIVED
+#define MQTT_DISABLE_MODBUSRECEIVED 0         // 1 = Disable ModbusReceived mqtt messages, 0 = Enable ModbusReceived mqtt messages (default)
 #endif
 
 #ifndef MESSZ
